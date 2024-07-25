@@ -1,0 +1,7 @@
+div#jarallax-container-0 div {
+    opacity: .5;
+}
+
+img.img-fluid.about-me {
+    filter: brightness(0.7);
+}

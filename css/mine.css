@@ -1,0 +1,18 @@
+div#jarallax-container-0 div {
+    /* opacity: .5; */
+    filter: brightness(0.5) grayscale(.5);
+}
+
+img.img-fluid.about-me {
+    filter: brightness(0.7)saturate(0.2);
+}
+
+.gsap-reveal-hero .reveal-wrap .reveal-content span {
+    color: #D63447;
+}
+
+div#about-section p {
+    max-height: 560px;
+    overflow: scroll;
+}
+
