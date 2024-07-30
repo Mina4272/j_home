@@ -2095,3 +2095,11 @@ span.error {
 .gsap-reveal-img .reveal-wrap .reveal-content .portfolio-item-content h3 {
   margin-bottom: 10px;
 }
+
+@media screen and (max-width: 425px){
+    .portfolio-item .overlay, .blog-item .overlay,.portfolio-item:focus .overlay, .blog-item:focus .overlay {
+  opacity: 1;
+  visibility: visible;
+}
+}
+
