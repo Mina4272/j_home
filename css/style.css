@@ -1024,8 +1024,8 @@ a, a:hover {
 }
 
 .blog-item .overlay {
-  opacity: 1;
-  visibility: visible;
+  /* opacity: 1; */
+  /* visibility: visible; */
 }
 
 .blog-item:hover .overlay {
@@ -2097,7 +2097,7 @@ span.error {
 }
 
 @media screen and (max-width: 425px){
-    .portfolio-item .overlay, .blog-item .overlay,.portfolio-item:focus .overlay, .blog-item:focus .overlay {
+    .portfolio-item .overlay, .blog-item:hover .overlay, .portfolio-item:focus .overlay, .blog-item:focus .overlay {
   opacity: 1;
   visibility: visible;
 }
