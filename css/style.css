@@ -1014,7 +1014,7 @@ a, a:hover {
   font-family: "Arimo", sans-serif;
 }
 
-.portfolio-item:hover .overlay, .blog-item:hover .overlay {
+.portfolio-item:hover .overlay, .blog-item:hover .overlay,.portfolio-item:focus .overlay, .blog-item:focus .overlay {
   opacity: 1;
   visibility: visible;
 }
@@ -1123,7 +1123,7 @@ a, a:hover {
   }
 }
 
-.unslate_co--section a:hover {
+.unslate_co--section a:hover,.unslate_co--section a:focus {
   color: #fff;
 }
 
