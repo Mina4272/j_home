@@ -176,6 +176,7 @@ h1 span {
 }
 
 .new-gallery figure {
+  position: relative;
   margin: 0;
   background: #fff;
 }
@@ -189,6 +190,22 @@ h1 span {
   width: 100%;
   height: auto;
   background: #e8e8e8;
+}
+
+.gallery figure::after,
+.new-gallery figure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.gallery img,
+.new-gallery img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 @media (max-width: 860px) {
@@ -205,6 +222,7 @@ h1 span {
 }
 
 .gallery figure {
+  position: relative;
   width: min(100%, 1400px);
   margin: 0;
   background: #fff;
@@ -353,6 +371,37 @@ h1 span {
     </main>
 
     <script>
+document.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+});
+
+document.addEventListener("dragstart", (event) => {
+  if (event.target.closest("img, figure")) {
+    event.preventDefault();
+  }
+});
+
+document.addEventListener("copy", (event) => {
+  if (document.getSelection()?.toString()) {
+    event.preventDefault();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  const key = event.key.toLowerCase();
+  const command = event.metaKey || event.ctrlKey;
+  const blockedCommand = command && ["s", "u", "c", "p"].includes(key);
+  const blockedDevTools =
+    event.key === "F12" ||
+    (command && event.shiftKey && ["i", "j", "c"].includes(key)) ||
+    (event.metaKey && event.altKey && ["i", "j", "c"].includes(key));
+
+  if (blockedCommand || blockedDevTools) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+});
+
 const gallery = document.querySelector(".gallery");
 const urls = [
   "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/8a35d5247143273.69d4aeb3d6b16.jpg",
