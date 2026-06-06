@@ -245,6 +245,43 @@ h1 span {
   font-weight: 700;
 }
 
+.copyright-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(8, 8, 8, 0.94);
+  color: #fff;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 140ms ease, visibility 140ms ease;
+}
+
+.copyright-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.copyright-overlay strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: 1;
+  font-weight: 900;
+}
+
+.copyright-overlay span {
+  display: block;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 @media (max-width: 860px) {
   .topbar {
     padding: 0 16px;
@@ -282,6 +319,13 @@ h1 span {
 </style>
   </head>
   <body>
+    <div class="copyright-overlay" aria-hidden="true">
+      <div>
+        <strong>Copyright Protected</strong>
+        <span>Lyra Design portfolio images are protected.</span>
+      </div>
+    </div>
+
     <header class="topbar" aria-label="Site header">
       <a class="brand" href="#top" aria-label="Lyra Design home">Lyra Design</a>
       <nav class="nav" aria-label="Portfolio navigation">
@@ -371,19 +415,47 @@ h1 span {
     </main>
 
     <script>
+const copyrightOverlay = document.querySelector(".copyright-overlay");
+let copyrightOverlayTimer;
+
+function showCopyrightOverlay(duration = 1800) {
+  clearTimeout(copyrightOverlayTimer);
+  copyrightOverlay.classList.add("is-visible");
+
+  if (duration > 0) {
+    copyrightOverlayTimer = setTimeout(() => {
+      if (document.visibilityState === "visible" && document.hasFocus()) {
+        copyrightOverlay.classList.remove("is-visible");
+      }
+    }, duration);
+  }
+}
+
+function hideCopyrightOverlay(delay = 900) {
+  clearTimeout(copyrightOverlayTimer);
+  copyrightOverlayTimer = setTimeout(() => {
+    if (document.visibilityState === "visible" && document.hasFocus()) {
+      copyrightOverlay.classList.remove("is-visible");
+    }
+  }, delay);
+}
+
 document.addEventListener("contextmenu", (event) => {
   event.preventDefault();
+  showCopyrightOverlay();
 });
 
 document.addEventListener("dragstart", (event) => {
   if (event.target.closest("img, figure")) {
     event.preventDefault();
+    showCopyrightOverlay();
   }
 });
 
 document.addEventListener("copy", (event) => {
   if (document.getSelection()?.toString()) {
     event.preventDefault();
+    showCopyrightOverlay();
   }
 });
 
@@ -391,15 +463,45 @@ document.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
   const command = event.metaKey || event.ctrlKey;
   const blockedCommand = command && ["s", "u", "c", "p"].includes(key);
+  const screenshotCommand =
+    event.key === "PrintScreen" ||
+    (event.metaKey && event.shiftKey && ["3", "4", "5"].includes(key)) ||
+    (event.metaKey && event.shiftKey && key === "s") ||
+    (event.ctrlKey && event.shiftKey && key === "s");
   const blockedDevTools =
     event.key === "F12" ||
     (command && event.shiftKey && ["i", "j", "c"].includes(key)) ||
     (event.metaKey && event.altKey && ["i", "j", "c"].includes(key));
 
-  if (blockedCommand || blockedDevTools) {
+  if (blockedCommand || blockedDevTools || screenshotCommand) {
     event.preventDefault();
     event.stopPropagation();
+    showCopyrightOverlay(2400);
   }
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    showCopyrightOverlay(0);
+  } else {
+    hideCopyrightOverlay(1200);
+  }
+});
+
+window.addEventListener("blur", () => {
+  showCopyrightOverlay(0);
+});
+
+window.addEventListener("focus", () => {
+  hideCopyrightOverlay(1200);
+});
+
+window.addEventListener("pagehide", () => {
+  showCopyrightOverlay(0);
+});
+
+window.addEventListener("pageshow", () => {
+  hideCopyrightOverlay(1200);
 });
 
 const gallery = document.querySelector(".gallery");
