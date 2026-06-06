@@ -417,6 +417,12 @@ h1 span {
     <script>
 const copyrightOverlay = document.querySelector(".copyright-overlay");
 let copyrightOverlayTimer;
+const activeModifierKeys = {
+  alt: false,
+  control: false,
+  meta: false,
+  shift: false
+};
 
 function showCopyrightOverlay(duration = 1800) {
   clearTimeout(copyrightOverlayTimer);
@@ -461,7 +467,15 @@ document.addEventListener("copy", (event) => {
 
 document.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
+  activeModifierKeys.alt = event.altKey || key === "alt";
+  activeModifierKeys.control = event.ctrlKey || key === "control";
+  activeModifierKeys.meta = event.metaKey || key === "meta";
+  activeModifierKeys.shift = event.shiftKey || key === "shift";
+
   const command = event.metaKey || event.ctrlKey;
+  const screenshotModifierCombo =
+    activeModifierKeys.shift &&
+    (activeModifierKeys.meta || activeModifierKeys.control);
   const blockedCommand = command && ["s", "u", "c", "p"].includes(key);
   const screenshotCommand =
     event.key === "PrintScreen" ||
@@ -473,11 +487,23 @@ document.addEventListener("keydown", (event) => {
     (command && event.shiftKey && ["i", "j", "c"].includes(key)) ||
     (event.metaKey && event.altKey && ["i", "j", "c"].includes(key));
 
-  if (blockedCommand || blockedDevTools || screenshotCommand) {
+  if (screenshotModifierCombo) {
+    showCopyrightOverlay(2600);
+  }
+
+  if (blockedCommand || blockedDevTools || screenshotCommand || screenshotModifierCombo) {
     event.preventDefault();
     event.stopPropagation();
     showCopyrightOverlay(2400);
   }
+});
+
+document.addEventListener("keyup", (event) => {
+  const key = event.key.toLowerCase();
+  if (key === "alt") activeModifierKeys.alt = false;
+  if (key === "control") activeModifierKeys.control = false;
+  if (key === "meta") activeModifierKeys.meta = false;
+  if (key === "shift") activeModifierKeys.shift = false;
 });
 
 document.addEventListener("visibilitychange", () => {
