@@ -417,6 +417,7 @@ h1 span {
     <script>
 const copyrightOverlay = document.querySelector(".copyright-overlay");
 let copyrightOverlayTimer;
+let copyrightOverlayLocked = false;
 const activeModifierKeys = {
   alt: false,
   control: false,
@@ -424,11 +425,14 @@ const activeModifierKeys = {
   shift: false
 };
 
-function showCopyrightOverlay(duration = 1800) {
+function showCopyrightOverlay(duration = 1800, lock = false) {
   clearTimeout(copyrightOverlayTimer);
+  if (lock) {
+    copyrightOverlayLocked = true;
+  }
   copyrightOverlay.classList.add("is-visible");
 
-  if (duration > 0) {
+  if (duration > 0 && !copyrightOverlayLocked) {
     copyrightOverlayTimer = setTimeout(() => {
       if (document.visibilityState === "visible" && document.hasFocus()) {
         copyrightOverlay.classList.remove("is-visible");
@@ -438,6 +442,10 @@ function showCopyrightOverlay(duration = 1800) {
 }
 
 function hideCopyrightOverlay(delay = 900) {
+  if (copyrightOverlayLocked) {
+    return;
+  }
+
   clearTimeout(copyrightOverlayTimer);
   copyrightOverlayTimer = setTimeout(() => {
     if (document.visibilityState === "visible" && document.hasFocus()) {
@@ -488,13 +496,13 @@ document.addEventListener("keydown", (event) => {
     (event.metaKey && event.altKey && ["i", "j", "c"].includes(key));
 
   if (screenshotModifierCombo) {
-    showCopyrightOverlay(2600);
+    showCopyrightOverlay(0, true);
   }
 
   if (blockedCommand || blockedDevTools || screenshotCommand || screenshotModifierCombo) {
     event.preventDefault();
     event.stopPropagation();
-    showCopyrightOverlay(2400);
+    showCopyrightOverlay(0, true);
   }
 });
 
@@ -508,14 +516,14 @@ document.addEventListener("keyup", (event) => {
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
-    showCopyrightOverlay(0);
+    showCopyrightOverlay(0, true);
   } else {
     hideCopyrightOverlay(1200);
   }
 });
 
 window.addEventListener("blur", () => {
-  showCopyrightOverlay(0);
+  showCopyrightOverlay(0, true);
 });
 
 window.addEventListener("focus", () => {
@@ -523,7 +531,7 @@ window.addEventListener("focus", () => {
 });
 
 window.addEventListener("pagehide", () => {
-  showCopyrightOverlay(0);
+  showCopyrightOverlay(0, true);
 });
 
 window.addEventListener("pageshow", () => {
