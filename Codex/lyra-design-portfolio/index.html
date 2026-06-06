@@ -481,6 +481,7 @@ document.addEventListener("keydown", (event) => {
   activeModifierKeys.shift = event.shiftKey || key === "shift";
 
   const command = event.metaKey || event.ctrlKey;
+  const protectiveModifierKey = ["alt", "control", "meta", "shift", "os"].includes(key);
   const screenshotModifierCombo =
     activeModifierKeys.shift &&
     (activeModifierKeys.meta || activeModifierKeys.control);
@@ -495,11 +496,17 @@ document.addEventListener("keydown", (event) => {
     (command && event.shiftKey && ["i", "j", "c"].includes(key)) ||
     (event.metaKey && event.altKey && ["i", "j", "c"].includes(key));
 
-  if (screenshotModifierCombo) {
+  if (protectiveModifierKey || screenshotModifierCombo) {
     showCopyrightOverlay(0, true);
   }
 
-  if (blockedCommand || blockedDevTools || screenshotCommand || screenshotModifierCombo) {
+  if (
+    protectiveModifierKey ||
+    blockedCommand ||
+    blockedDevTools ||
+    screenshotCommand ||
+    screenshotModifierCombo
+  ) {
     event.preventDefault();
     event.stopPropagation();
     showCopyrightOverlay(0, true);
@@ -523,6 +530,18 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener("blur", () => {
+  showCopyrightOverlay(0, true);
+});
+
+window.addEventListener("mouseleave", () => {
+  showCopyrightOverlay(0, true);
+});
+
+window.addEventListener("resize", () => {
+  showCopyrightOverlay(0, true);
+});
+
+window.addEventListener("beforeprint", () => {
   showCopyrightOverlay(0, true);
 });
 
