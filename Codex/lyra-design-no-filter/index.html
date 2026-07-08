@@ -181,6 +181,25 @@ a {
   color: var(--accent);
 }
 
+.sidebar-email {
+  max-width: 160px;
+  margin: 24px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.sidebar-email span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
 .pill {
   display: grid;
   width: 44px;
@@ -363,6 +382,7 @@ a {
   .topbar::after,
   .brand::after,
   .nav,
+  .sidebar-email,
   .pill {
     display: none;
   }
@@ -425,6 +445,7 @@ a {
         <a href="#gallery">Journal</a>
         <a href="mailto:yuchieh4272@gmail.com">Contact</a>
       </nav>
+      <a class="sidebar-email" href="mailto:yuchieh4272@gmail.com"><span>email:</span>yuchieh4272@gmail.com</a>
       <a class="pill" href="mailto:yuchieh4272@gmail.com" aria-label="Contact Lyra Design">Explore</a>
     </header>
 
@@ -517,7 +538,7 @@ a {
       <div class="footer-mark">III</div>
       <div class="footer-social">Instagram<br>Behance<br>LinkedIn</div>
       <div class="footer-copy">© 2026 Lyra Design Studio.<br>All rights reserved.</div>
-      <a class="footer-mail" href="mailto:yuchieh4272@gmail.com">yuchieh4272@gmail.com</a>
+      <a class="footer-mail" href="mailto:yuchieh4272@gmail.com">email: yuchieh4272@gmail.com</a>
       <a class="footer-top" href="#top" aria-label="Back to top">↑</a>
     </footer>
 
