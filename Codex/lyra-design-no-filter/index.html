@@ -200,6 +200,15 @@ a {
   letter-spacing: 0.08em;
 }
 
+.email-note {
+  max-width: 164px;
+  margin: 10px 0 0;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.65;
+}
+
 .pill {
   display: grid;
   width: 44px;
@@ -345,6 +354,18 @@ a {
   justify-self: end;
 }
 
+.footer-note {
+  grid-column: 3 / 4;
+  justify-self: end;
+  max-width: 260px;
+  margin: -22px 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.7;
+  text-align: right;
+}
+
 .footer-top {
   display: grid;
   width: 44px;
@@ -383,6 +404,7 @@ a {
   .brand::after,
   .nav,
   .sidebar-email,
+  .email-note,
   .pill {
     display: none;
   }
@@ -427,8 +449,16 @@ a {
   }
 
   .footer-mail,
+  .footer-note,
   .footer-top {
     justify-self: start;
+  }
+
+  .footer-note {
+    grid-column: auto;
+    max-width: none;
+    margin: -8px 0 0;
+    text-align: left;
   }
 }
 
@@ -446,6 +476,7 @@ a {
         <a href="mailto:yuchieh4272@gmail.com">Contact</a>
       </nav>
       <a class="sidebar-email" href="mailto:yuchieh4272@gmail.com"><span>email:</span>yuchieh4272@gmail.com</a>
+      <p class="email-note">網站皆有獨立網址，請預約瀏覽版型</p>
       <a class="pill" href="mailto:yuchieh4272@gmail.com" aria-label="Contact Lyra Design">Explore</a>
     </header>
 
@@ -540,6 +571,7 @@ a {
       <div class="footer-social">Instagram<br>Behance<br>LinkedIn</div>
       <div class="footer-copy">© 2026 Lyra Design Studio.<br>All rights reserved.</div>
       <a class="footer-mail" href="mailto:yuchieh4272@gmail.com">email: yuchieh4272@gmail.com</a>
+      <p class="footer-note">網站皆有獨立網址，請預約瀏覽版型</p>
       <a class="footer-top" href="#top" aria-label="Back to top">↑</a>
     </footer>
 
