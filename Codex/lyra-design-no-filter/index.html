@@ -713,6 +713,11 @@ urls.forEach((url, index) => {
   figure.append(image);
   gallery.append(figure);
 });
+
+document.querySelectorAll('a[href^="https://www.facebook.com/"]').forEach((link) => {
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+});
 </script>
   </body>
 </html>
