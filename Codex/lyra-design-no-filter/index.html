@@ -319,7 +319,8 @@ a {
   grid-template-columns: auto 1fr 1fr auto;
   gap: 34px;
   align-items: center;
-  width: min(958px, calc(100% - var(--sidebar) - 72px));
+  box-sizing: border-box;
+  width: calc(100% - var(--sidebar) - 42px);
   margin: 0 0 0 calc(var(--sidebar) + 42px);
   padding: 34px 44px;
   border-radius: 28px;
@@ -357,6 +358,8 @@ a {
 
 .footer-mail {
   justify-self: end;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .footer-note {
@@ -443,6 +446,8 @@ a {
   .site-footer {
     grid-template-columns: 1fr;
     gap: 18px;
+    box-sizing: border-box;
+    width: 100%;
     margin: 0;
     padding: 24px;
     border-radius: 24px;
