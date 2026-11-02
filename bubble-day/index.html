@@ -241,6 +241,7 @@ const pressedImages=pressedAssets.map((src,i)=>{
     if(board.children[i]?.classList.contains('popped'))drawPressedCell(i);
   };
   image.src=src;
+   image.decode?.().catch(()=>{});
   return image;
 });
 function clearPressedLayer(){
@@ -256,7 +257,9 @@ function drawPressedCell(i){
   const x0=GRID_X[c],y0=GRID_Y[r],w=GRID_X[c+1]-x0,h=GRID_Y[r+1]-y0;
   // Pixels outside this photographed cell are never touched.
   pressedCtx.drawImage(image,x0,y0,w,h);
- board.children[i]?.classList.add('painted');
+ const bubble=board.children[i];
+ bubble?.classList.add('painted');
+ bubble?.style.removeProperty('--pressed-image');
 }
 
 function loadRecords(){try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(raw)?raw.filter(r=>[30,60,120].includes(r.duration)&&Number.isFinite(r.sheets)&&Number.isFinite(r.score)).slice(-100):[]}catch(_){return []}}
@@ -346,7 +349,6 @@ function renderBoard(){
   const x0=GRID_X[c],x1=GRID_X[c+1],y0=GRID_Y[r],y1=GRID_Y[r+1];
   el.style.left=(x0/PHOTO.w*100)+'%';el.style.top=(y0/PHOTO.h*100)+'%';
   el.style.width=((x1-x0)/PHOTO.w*100)+'%';el.style.height=((y1-y0)/PHOTO.h*100)+'%';
-  el.style.setProperty('--pressed-image',`url('${pressedAssets[i]}')`);
    if(nativeIphoneHaptics){const input=document.createElement('input');input.type='checkbox';input.className='native-haptic';input.setAttribute('aria-label',`第${i+1}顆泡泡，尚未按下`);if(hapticOn)input.setAttribute('switch','');input.addEventListener('click',()=>pop(el));input.addEventListener('change',()=>{if(!el.classList.contains('popped'))pop(el);setTimeout(()=>{if(el.classList.contains('popped'))input.disabled=true},0)});el.appendChild(input)}
   else el.setAttribute('aria-label',`第${i+1}顆泡泡，尚未按下`);
   frag.appendChild(el);
@@ -425,6 +427,8 @@ function pop(el){
  }
  el.classList.add('popped','pop-anim');
  const index=Number(el.dataset.index);
+ if(!originalReady||!pressedImages[index]?.complete||!pressedImages[index].naturalWidth)
+  el.style.setProperty('--pressed-image',`url('${pressedAssets[index]}')`);
  drawPressedCell(index);
  const target=el.querySelector('.native-haptic')||el;target.setAttribute('aria-label',`第${Number(el.dataset.index)+1}顆泡泡，已按下`);
  count++;playPop();const now=performance.now();if(now-lastVibrate>35){hapticPop();lastVibrate=now}updateProgress();
