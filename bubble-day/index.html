@@ -98,6 +98,29 @@ dialog::backdrop{background:rgba(38,54,54,.34);backdrop-filter:blur(7px);-webkit
 #announce{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:360px){.app{padding-inline:12px}.topbar{height:51px;grid-template-columns:43px 1fr 43px}.icon-button{width:43px;height:43px}.brand-name{font-size:17px}.brand-orb{width:25px;height:25px}.tagline{font-size:9px}.challenge-hud{padding-inline:10px;grid-template-columns:1.08fr .9fr auto}.hud-timer strong{font-size:27px}.hud-sheets strong{font-size:24px}.board-shell{border-radius:20px}.progress-row{gap:8px}}
 @media(min-width:600px){.app{padding-top:29px;padding-bottom:30px}.topbar{margin-bottom:14px}.board-shell{border-radius:29px}}
+@media(max-width:599px), (max-height:599px) and (pointer:coarse){
+ html,body{height:100%;overflow:hidden}
+ .app{height:100svh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+ .topbar,.app main>*{flex:none}
+ .app main{min-height:0;flex:1;display:flex;flex-direction:column}
+ .board-shell{margin-inline:auto;flex:none}
+}
+@media(max-width:599px) and (max-height:720px), (max-height:599px) and (pointer:coarse){
+ .app{padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:calc(6px + env(safe-area-inset-bottom))}
+ .topbar{height:46px;margin-bottom:5px}
+ .topbar .icon-button{width:40px;height:40px}
+ .modebar{margin-bottom:5px}.mode-btn{padding:6px 4px}
+ .challenge-hud{min-height:54px;margin-bottom:5px;padding:5px 10px 7px}
+ .zen-hud{margin-bottom:5px;padding:5px 10px}
+ .progress-row{min-height:43px;padding:2px 4px 0}
+ #reset{width:40px;height:40px}
+ .challenge-foot{margin-top:0;padding:0 2px}.link-button{padding:4px 6px}
+ .breath{margin-top:2px}
+}
+.board-shell.canvas-on .bubble.pop-anim::before{display:block;animation:membrane-collapse .22s cubic-bezier(.24,.72,.25,1) both}
+@keyframes membrane-collapse{0%{opacity:.08;transform:scale(1.08);filter:brightness(1.5)}42%{opacity:.93;transform:scale(.91);filter:brightness(1.16)}100%{opacity:0;transform:scale(1);filter:brightness(1)}}
+.bubble.pop-anim::after{animation:flash .28s ease-out}
+@keyframes flash{0%{opacity:.62;transform:scale(.55);filter:blur(0)}45%{opacity:.28;transform:scale(1.06)}100%{opacity:0;transform:scale(1.5);filter:blur(2px)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -183,7 +206,8 @@ const board=$('board'),boardShell=$('board-shell'),counter=$('count'),progressFi
 const timerEl=$('timer'),timerGroup=$('timer-group'),sheetsEl=$('sheets-completed'),timeFill=$('time-fill'),durationSelect=$('duration'),challengeButton=$('challenge-action');
 const hud=$('challenge-hud'),zenHud=$('zen-hud'),footHint=$('foot-hint'),reset=$('reset'),historyDialog=$('history-dialog'),resultDialog=$('result-dialog');
 const announce=$('announce'),toastEl=$('toast');
-const nativeIphoneHaptics=/iPhone|iPod/i.test(navigator.userAgent)&&!('vibrate' in navigator);
+ const iosMajor=Number(navigator.userAgent.match(/(?:iPhone|iPod).*?OS (\d+)_/i)?.[1]||0);
+ const nativeIphoneHaptics=iosMajor>=18&&!('vibrate' in navigator);
 const STORAGE_KEY='bubble_hiyori_scores_v1';
 let mode='challenge',phase='idle',duration=60,endsAt=0,clockHandle=null,swapHandle=null,toastHandle=null;
 let completedSheets=0,count=0,zenSheets=0,lastResult=null,cachedShareFile=null,records=loadRecords();
@@ -234,6 +258,21 @@ function loadRecords(){try{const raw=JSON.parse(localStorage.getItem(STORAGE_KEY
 function saveRecords(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(records.slice(-100)));return true}catch(_){return false}}
 function getBest(seconds){return records.filter(r=>r.duration===seconds).sort((a,b)=>b.sheets-a.sheets||b.score-a.score||String(b.date).localeCompare(String(a.date)))[0]||null}
 function showToast(message){toastEl.textContent=message;toastEl.classList.add('show');clearTimeout(toastHandle);toastHandle=setTimeout(()=>toastEl.classList.remove('show'),2500)}
+let fitFrame=0;
+function fitBoard(){
+ const compact=window.matchMedia('(max-width:599px), (max-height:599px) and (pointer:coarse)').matches;
+ boardShell.style.width='';
+ if(!compact)return;
+ const app=document.querySelector('.app'),appStyle=getComputedStyle(app);
+ const shell=boardShell.getBoundingClientRect();
+ const last=($('breath-guide').hidden?document.querySelector('.challenge-foot'):$('breath-guide')).getBoundingClientRect();
+ const viewport=Math.min(window.innerHeight,window.visualViewport?.height||window.innerHeight);
+ const after=Math.max(0,last.bottom-shell.bottom);
+ const height=Math.max(1,viewport-shell.top-after-parseFloat(appStyle.paddingBottom)-6);
+ const width=app.clientWidth-parseFloat(appStyle.paddingLeft)-parseFloat(appStyle.paddingRight);
+ boardShell.style.width=`${Math.max(1,Math.min(width,height*PHOTO.w/PHOTO.h))}px`;
+}
+function scheduleBoardFit(){cancelAnimationFrame(fitFrame);fitFrame=requestAnimationFrame(fitBoard)}
 function fmtTime(sec){const s=Math.max(0,Math.ceil(sec));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function refreshBestInline(){const b=getBest(duration);$('best-inline').textContent=b?`· ${b.sheets} 張最佳`:''}
 function emitPopSound(){
@@ -265,7 +304,7 @@ function renderBoard(){
   el.style.left=(x0/PHOTO.w*100)+'%';el.style.top=(y0/PHOTO.h*100)+'%';
   el.style.width=((x1-x0)/PHOTO.w*100)+'%';el.style.height=((y1-y0)/PHOTO.h*100)+'%';
   el.style.setProperty('--pressed-image',`url('${pressedAssets[i]}')`);
-  if(nativeIphoneHaptics){const input=document.createElement('input');input.type='checkbox';input.className='native-haptic';input.setAttribute('aria-label',`第${i+1}顆泡泡，尚未按下`);if(hapticOn)input.setAttribute('switch','');el.appendChild(input)}
+   if(nativeIphoneHaptics){const input=document.createElement('input');input.type='checkbox';input.className='native-haptic';input.setAttribute('aria-label',`第${i+1}顆泡泡，尚未按下`);if(hapticOn)input.setAttribute('switch','');input.addEventListener('change',()=>{if(el.classList.contains('popped'))input.disabled=true});el.appendChild(input)}
   else el.setAttribute('aria-label',`第${i+1}顆泡泡，尚未按下`);
   frag.appendChild(el);
  }
@@ -288,6 +327,7 @@ function updateHUD(){
  }
  if(phase!=='running'){timerEl.textContent=fmtTime(duration);timerGroup.classList.remove('urgent');timeFill.style.width='100%'}
  refreshBestInline();
+  scheduleBoardFit();
 }
 function startChallenge(preserveBoard=false){
  if(mode!=='challenge')return;
@@ -341,9 +381,9 @@ function pop(el){
   if(performance.now()>=endsAt){finishChallenge();return;}
  }
  el.classList.add('popped');el.classList.remove('pop-anim');void el.offsetWidth;el.classList.add('pop-anim');
-  drawPressedCell(Number(el.dataset.index));
+  const index=Number(el.dataset.index);
+  setTimeout(()=>{if(board.children[index]===el&&el.classList.contains('popped'))drawPressedCell(index)},55);
  const target=el.querySelector('.native-haptic')||el;target.setAttribute('aria-label',`第${Number(el.dataset.index)+1}顆泡泡，已按下`);
- if(nativeIphoneHaptics){const checkbox=el.querySelector('.native-haptic');if(checkbox)setTimeout(()=>{checkbox.disabled=true},0)}
  count++;playPop();const now=performance.now();if(now-lastVibrate>35){hapticPop();lastVibrate=now}updateProgress();
  if(count===TOTAL){
   if(mode==='challenge')completedSheets++;else zenSheets++;
@@ -367,10 +407,10 @@ reset.addEventListener('click',()=>{if(mode==='zen'){renderBoard();showToast('�
 $('sound').addEventListener('click',()=>{soundOn=!soundOn;$('sound').setAttribute('aria-pressed',String(soundOn));$('sound').setAttribute('aria-label',soundOn?'關閉泡泡聲':'開啟泡泡聲');if(soundOn)playPop()});
 $('sound-test').addEventListener('click',()=>{if(!soundOn){soundOn=true;$('sound').setAttribute('aria-pressed','true');$('sound').setAttribute('aria-label','關閉泡泡聲')}playPop()});
 $('haptic').addEventListener('click',()=>{hapticOn=!hapticOn;$('haptic').setAttribute('aria-pressed',String(hapticOn));$('haptic').textContent=`震動 ${hapticOn?'開':'關'}`;if(nativeIphoneHaptics)document.querySelectorAll('.native-haptic').forEach(input=>input.toggleAttribute('switch',hapticOn));if(hapticOn)hapticPop()});
-if(nativeIphoneHaptics)$('touch-detail').textContent='iPhone Safari 可用時提供原生輕震，依系統設定';
+ if(nativeIphoneHaptics)$('touch-detail').textContent='iOS 18+ Safari 原生輕震，依系統設定';
 else if(!('vibrate' in navigator)){$('haptic').disabled=true;$('haptic').setAttribute('aria-pressed','false');$('haptic').textContent='不支援';$('touch-detail').textContent='這個瀏覽器沒有提供震動功能'}
 function updateBreath(){const t=Math.floor((performance.now()-breathStartedAt)/1000)%10;$('breath-text').textContent=t<4?'跟著小光點，慢慢吸氣。':'輕輕吐氣，把緊繃放下。'}
-$('breathing').addEventListener('click',()=>{breathingOn=!breathingOn;$('breathing').setAttribute('aria-pressed',String(breathingOn));$('breathing').textContent=`引導 ${breathingOn?'開':'關'}`;$('breath-guide').hidden=!breathingOn;clearInterval(breathTimer);if(breathingOn){breathStartedAt=performance.now();updateBreath();breathTimer=setInterval(updateBreath,1000)}});
+ $('breathing').addEventListener('click',()=>{breathingOn=!breathingOn;$('breathing').setAttribute('aria-pressed',String(breathingOn));$('breath-guide').hidden=!breathingOn;$('breathing').textContent=`引導 ${breathingOn?'開':'關'}`;clearInterval(breathTimer);if(breathingOn){breathStartedAt=performance.now();updateBreath();breathTimer=setInterval(updateBreath,1000)}scheduleBoardFit()});
 const settingsDialog=$('settings-dialog');
 $('settings-open').addEventListener('click',()=>settingsDialog.showModal());$('settings-close').addEventListener('click',()=>settingsDialog.close());
 settingsDialog.addEventListener('click',e=>{if(e.target===settingsDialog)settingsDialog.close()});
@@ -450,7 +490,10 @@ $('share-result').addEventListener('click',async()=>{
 });
 // The countdown follows wall clock elapsed time, including when a tab is hidden.
 document.addEventListener('visibilitychange',()=>{if(phase==='running')updateTimer()});
-renderBoard();updateHUD();
+ window.addEventListener('resize',scheduleBoardFit);
+ window.addEventListener('orientationchange',scheduleBoardFit);
+ window.visualViewport?.addEventListener('resize',scheduleBoardFit);
+ renderBoard();updateHUD();
 })();
 </script>
 </body>
