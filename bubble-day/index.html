@@ -500,7 +500,7 @@ board.addEventListener('pointerdown',e=>{if(iosDevice)return;if(e.pointerType===
 board.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){if(e.buttons===1)pop(getBubbleAtPoint(e.clientX,e.clientY))}else if(dragPointer===e.pointerId)pop(getBubbleAtPoint(e.clientX,e.clientY))},{passive:true});
 document.addEventListener('pointerup',e=>{if(dragPointer===e.pointerId)dragPointer=null},{passive:true});
 document.addEventListener('pointercancel',e=>{if(dragPointer===e.pointerId)dragPointer=null},{passive:true});
-board.addEventListener('pointerover',e=>{if(e.pointerType==='mouse'&&mode==='zen'&&!roundSwapping)pop(e.target.closest('.bubble'))});
+ board.addEventListener('pointerover',e=>{if(e.pointerType==='mouse'&&!phoneLayout&&mode==='zen'&&!roundSwapping)pop(e.target.closest('.bubble'))});
 board.addEventListener('click',e=>pop(e.target.closest('.bubble')));
 board.addEventListener('keydown',e=>{const curr=e.target.closest('.bubble');if(!curr)return;const i=Number(curr.dataset.index),offset={ArrowLeft:-1,ArrowRight:1,ArrowUp:-view.cols,ArrowDown:view.cols};if(Object.prototype.hasOwnProperty.call(offset,e.key)){e.preventDefault();const to=board.children[Math.max(0,Math.min(TOTAL-1,i+offset[e.key]))];(to.querySelector('.native-haptic')||to).focus()}});
 $('mode-challenge').addEventListener('click',()=>switchMode('challenge'));
