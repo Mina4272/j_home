@@ -103,6 +103,7 @@ dialog::backdrop{background:rgba(38,54,54,.34);backdrop-filter:blur(7px);-webkit
 @media(min-width:600px){.app{padding-top:29px;padding-bottom:30px}.topbar{margin-bottom:14px}.board-shell{border-radius:29px}}
 @media(max-width:599px), (max-height:599px) and (pointer:coarse){
  html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+ body{position:fixed;inset:0;min-height:0}
  .app{width:100%;height:100svh;height:100dvh;min-height:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);overflow:hidden;display:flex;flex-direction:column}
  .topbar{position:relative;z-index:4;flex:none;height:52px;margin:0;padding:0 10px;grid-template-columns:42px minmax(0,1fr) 42px;background:linear-gradient(160deg,#f9fbf9f5,#f0f5f3ee);box-shadow:0 3px 11px #6880782b}
  .topbar .icon-button{width:40px;height:40px;border-radius:14px}
@@ -520,7 +521,7 @@ if(phoneLayout){
  for(const node of [document.querySelector('.modebar'),hud,zenHud,document.querySelector('.progress-row'),document.querySelector('.challenge-foot')])mobileControls.appendChild(node);
  mobileControls.hidden=false;
  mobileControls.addEventListener('click',e=>{
-  if(e.target.closest('#mode-challenge,#mode-zen,#challenge-action,#reset')&&settingsDialog.open)settingsDialog.close();
+  if(e.target.closest('#mode-challenge,#mode-zen,#challenge-action,#reset')&&settingsDialog.open)setTimeout(()=>settingsDialog.close(),0);
  });
 }
 $('settings-open').addEventListener('click',()=>settingsDialog.showModal());$('settings-close').addEventListener('click',()=>settingsDialog.close());
